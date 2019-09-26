@@ -1,4 +1,4 @@
-class Tablero:
+class Tablero1:
     ''' Definicion de un tablero para el juego de Othello '''
     def __init__(self, dimension=8, tamCasilla=60):
         ''' Constructor base de un tablero
@@ -9,10 +9,14 @@ class Tablero:
         '''
         self.dimension = dimension
         self.tamCasilla = tamCasilla
+        self.turno = True # Representa de quien es el turno bajo la siguiente convencion: true = jugador 1, false = jugador 2
         self.numeroDeTurno = 0 # Contador de la cantidad de turnos en el tablero
         self.mundo = [[0 for i in range(self.dimension)] for j in range(self.dimension)] # Representacion logica del tablero. Cada numero representa: 0 = vacio, 1 = ficha jugador1, 2 = ficha jugador 2
         # Configuracion inicial (colocar 4 fichas al centro del tablero):
-
+        self.mundo[(self.dimension/2)-1][self.dimension/2] = 1
+        self.mundo[self.dimension/2][(self.dimension/2)-1] = 1
+        self.mundo[(self.dimension/2)-1][(self.dimension/2)-1] = 2
+        self.mundo[self.dimension/2][self.dimension/2] = 2
         print("Jugadas posibles: %s" % str(self.jugadasPosibles()))
         
     def display(self):
@@ -37,7 +41,7 @@ class Tablero:
                     noStroke() # quitar contorno de linea
                     ellipse(i*self.tamCasilla+(self.tamCasilla/2), j*self.tamCasilla+(self.tamCasilla/2), self.tamCasilla*3/5, self.tamCasilla*3/5)
     
-    def setFicha(self, pos_x, pos_y, color_ficha):
+    def setFicha(self, posX, posY, turno=None):
         ''' Coloca o establece una ficha en una casilla especifica del tablero.
         Nota: El eje vertical esta invertido y el contador empieza en cero.
         :param posX: Coordenada horizontal de la casilla para establecer la ficha
@@ -47,10 +51,8 @@ class Tablero:
         :param turno: Representa el turno o color de ficha a establecer
         :type turno: bool
         '''
-        if color == 'blanco':
-            self.mundo[pos_x][pos_y] = 2
-        elif color == 'negro':
-            self.mundo[pos_x][pos_y] = 1
+        turno = self.turno if turno is None else turno # permite definir un parametro default que es instancia de la clase (self.turno)
+        self.mundo[posX][posY] = 1 if turno else 2
    
     def cambiarTurno(self):
         ''' Representa el cambio de turno. Normalmente representa la ultima accion del turno '''
@@ -81,12 +83,12 @@ class Tablero:
                 if self.mundo[i][j] == 2:
                     contador.y = contador.y + 1
         return contador
-                
-    def fichasRodeadasAux(self, x, y, sx, sy, turno):
+        
+    def fichasRodeadasAux(self, x, y, sx, sy):
         l = []
         i, j = x, y
-        contrario = 2 if turno else 1
-        actual = 1 if turno else 2
+        contrario = 2 if self.turno else 1
+        actual = 1 if self.turno else 2
         while i >= 0 and i < self.dimension and j >= 0 and \
             j < self.dimension and self.mundo[i][j] == contrario:   
             l.append((i,j))
@@ -97,29 +99,30 @@ class Tablero:
             return l
         return []
         
-    def fichas_rodeadas(self, x, y, turno):
+    def fichasRodeadas(self, x, y):
         fichas = []
-        fichas += self.fichasRodeadasAux(x - 1, y - 1, -1, -1, turno)
-        fichas += self.fichasRodeadasAux(x - 1, y, -1, 0, turno)
-        fichas += self.fichasRodeadasAux(x - 1, y + 1, -1, 1, turno)
-        fichas += self.fichasRodeadasAux(x, y + 1, 0, 1, turno)
-        fichas += self.fichasRodeadasAux(x + 1, y + 1, 1, 1, turno)
-        fichas += self.fichasRodeadasAux(x + 1, y, 1, 0, turno)
-        fichas += self.fichasRodeadasAux(x + 1, y - 1, 1, -1, turno)
-        fichas += self.fichasRodeadasAux(x, y - 1, 0, -1, turno)
+        fichas += self.fichasRodeadasAux(x - 1, y - 1, -1, -1)
+        fichas += self.fichasRodeadasAux(x - 1, y, -1, 0)
+        fichas += self.fichasRodeadasAux(x - 1, y + 1, -1, 1)
+        fichas += self.fichasRodeadasAux(x, y + 1, 0, 1)
+        fichas += self.fichasRodeadasAux(x + 1, y + 1, 1, 1)
+        fichas += self.fichasRodeadasAux(x + 1, y, 1, 0)
+        fichas += self.fichasRodeadasAux(x + 1, y - 1, 1, -1)
+        fichas += self.fichasRodeadasAux(x, y - 1, 0, -1)
         return set(fichas)
     
-    def invertirFichas(self, fichas, turno):
-        actual = 1 if turno else 2
+    def invertirFichas(self, fichas):
+        actual = 1 if self.turno else 2
         for x in fichas:
             self.mundo[x[0]][x[1]] = actual
             
-    def jugadas_posibles(self, turno):
+    def jugadasPosibles(self):
         l = []
         for x in range(self.dimension):
             for y in range(self.dimension):
-                if not self.estaOcupado(x, y) and len(self.fichasRodeadas(x, y, turno)) > 0:
+                fichas_a_rodear = self.fichasRodeadas(x,y)
+                if not self.estaOcupado(x, y) and len(fichas_a_rodear) > 0:
+                    print("Jugada posible: %s" % str((x,y)))
+                    print("Fichas a rodear: %s" % str(fichas_a_rodear))
                     l.append((x,y))
         return l
-            
-                

@@ -1,8 +1,8 @@
 ''' Proyecto base para el juego de Othello/Reversi 
 :author: Rodrigo Colin
 '''
-from Tablero import *
-tablero = Tablero()
+from Tablero1 import *
+tablero = Tablero1()
 
 def settings():
     ''' Metodo para establecer tamano de ventana al incluir variables '''
