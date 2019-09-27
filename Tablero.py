@@ -68,7 +68,7 @@ class Tablero:
         '''
         return self.mundo[posX][posY] != 0
     
-    def cantidadFichas(self):
+    def cantidad_fichas(self):
         ''' Cuenta la cantidad de fichas en el tablero
         :returns: La cantidad de fichas de ambos jugadores en el tablero como vector donde x = jugador 1, y = jugador 2
         :rtype: PVector 
@@ -121,5 +121,6 @@ class Tablero:
                 if not self.estaOcupado(x, y) and len(self.fichasRodeadas(x, y, turno)) > 0:
                     l.append((x,y))
         return l
-            
-                
+    
+    def numero_jugadas_posibles(self, turno):
+        return len(self.jugadas_posibles(turno))    
