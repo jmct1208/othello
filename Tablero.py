@@ -124,3 +124,64 @@ class Tablero:
     
     def numero_jugadas_posibles(self, turno):
         return len(self.jugadas_posibles(turno))    
+    
+    def heuristica_esquinas(self, turno):
+        esquina1 = -1
+        esquina2 = -1
+        esquina3 = -1
+        esquina4 = -1
+        color = 1 if turno else 2
+        
+        if self.mundo[0][0] == color:
+            esquina1 = 1 #Esquina capturada
+        else:
+            if self.mundo[2][0] == color or self.mundo[2][2] == color or self.mundo[0][2] == color:
+                esquina1 = 0
+        
+        if self.mundo[0, 7] == color:
+            esquina2 = 1
+        else:
+            if self.mundo[5, 0] == color or self.mundo[2][5] == color or self.mundo[2][7] == color:
+                esquina2 = 0
+
+        if self.mundo[7][7] == color:
+            esquina3 = 1
+        else:
+            if self.mundo[7, 5] == color or self.mundo[5][5] == color or self.mundo[5][7] == color:
+                esquina3 = 0
+
+        if self.mundo[7, 0] == color:
+            esquina4 = 1
+        else:
+            if self.mundo[5][0] == color or self.mundo[5][2] == color or self.mundo[7][2] == color:
+                esquina4 = 0
+                
+        return esquina1 + esquina2 + esquina3 + esquina4
+    
+    def heuristica_estabilidad(self, turno):
+        stable = []
+        semistable = []
+        unstable = []
+        color = 1 if turno else 2
+        esquinas = [(0, 0), (0, 7), (7, 0), (7, 7)]
+        
+        for esquina in esquinas:
+            if esquina == color:
+                stable.append(esquina)
+        lista_fichas_rodeable = []
+        for x in range(self.dimension):
+            for y in range(self.dimension):
+                if not self.estaOcupado(x, y):
+                    lista_fichas_rodeadas.append(self.fichas_rodeadas(x, y, !turno))
+                    
+        conjunto_fichas_rodeables = set().union(*lista_fichas_rodeables)
+        for x in range(self.dimension):
+            for  y in range(self.dimension):
+                if self.mundo[x][y] == color and (x, y) in conjunto_fichas_rodeables:
+                    unstable.append((x, y))
+                else:
+                    semistable.append((x, y))
+        
+        return 3 * len(stable) + 2 * len(semistable) + len(unstable) 
+        
+                

@@ -57,13 +57,27 @@ class Othello(Game):
     def actual_mobility(self, estado):
         max_player = estado.turno
         min_player = !estado.turno
-        max_player_actual_mobility = estado.tablero.numero_jugadas_posibles(max_player)
-        min_player_actual_mobility = estado.tablero.numero_jugadas_posibles(min_player)
-        if max_player_actual_mobility + min_player_actual_mobility != 0:
-            return (max_player_actual_mobility - min_player_actual_mobility) / (max_player_actual_mobility + min_player_actual_mobility)
+        max = estado.tablero.numero_jugadas_posibles(max_player)
+        min = estado.tablero.numero_jugadas_posibles(min_player)
+        if max + min != 0:
+            return 100 * (max - min) / (max + min)
         else:
             return 0
-
+    
+    def corners_captured(self, estado):
+        jugador = estado.turno
+        contrincante = !jugador
+        max = estado.tablero.heuristica_esquinas(jugador)
+        min = estado.tablero.heuristica_esquinas(contrincante)
+        if max + min != 0:
+            return 100 * (max - min) / (max + min)
+        else:
+            return 0       
+        
+    def stability(self, estado):
+        
+        
+          
 def max_value(state, alpha, beta, profundidad):
         if juego.cutoff_test(state, profundidad, d):
             return juego.evaluacion(estado)
