@@ -1,26 +1,41 @@
-inf = float('inf')
-class Othello(Game):
+from Tablero import Tablero
+from Estado import Estado
+import copy
+
+class Othello():
     def __init__(self):
         tablero_inicial = Tablero()
-        tablero_inicial.setFicha(3, 3, "blanco")
-        tablero_inicial.setFicha(4, 4, "blanco")
-        tablero_inicial.setFicha(3, 4, "negro")
-        tablero_inicial.setFicha(4, 3, "negro")
-        turno_inicial = true
+        tablero_inicial.set_ficha(3, 3, False)
+        tablero_inicial.set_ficha(4, 4, False)
+        tablero_inicial.set_ficha(3, 4, True)
+        tablero_inicial.set_ficha(4, 3, True)
+        turno_inicial = True
         mov_iniciales = tablero_inicial.jugadas_posibles(turno_inicial)
-        self.inicial = Estado(tablero, turno_inicial, 0, mov_iniciales)
+        self.inicial = Estado(tablero_inicial, turno_inicial, \
+                              self.evaluacion(tablero_inicial, turno_inicial), mov_iniciales)
         
     def actions(self, estado):
         return estado.tablero.jugadas_posibles(estado.turno)
     
     def resultado(self, estado, movimiento):
+        if movimiento is None:
+            nuevo_turno = not estado.turno
+            nuevo_tablero = estado.tablero.copy()
+            return Estado(nuevo_tablero, nuevo_turno,\
+                            self.evaluacion(nuevo_tablero, nuevo_turno),\
+                                nuevo_tablero.jugadas_posibles(nuevo_turno))
         if movimiento not in estado.movimientos:
-            return state 
-        tablero = estado.tablero.copy()
-        tablero.setFicha(movimiento[0], movimiento[1], estado.turno)
-        fichas_a_rodear = estado.tablero.fichas_rodeadas(movimiento[0], movimiento[1], estado.turno)
-        tablero.invertir_fichas(fichas_a_rodear, estado.turno)
-        nuevo_estado = Estado(tablero, !estado.turno, 0, tablero.jugadas_posibles(!estado.turno))
+            return estado 
+        nuevo_turno = not estado.turno            
+        nuevo_tablero = copy.deepcopy(estado.tablero)
+        nuevo_tablero.set_ficha(movimiento[0], movimiento[1], estado.turno)
+        fichas_a_rodear = estado.tablero.fichas_rodeadas(\
+                            movimiento[0], movimiento[1], estado.turno)
+        nuevo_tablero.invertir_fichas(fichas_a_rodear, estado.turno)
+        nuevo_estado = Estado(nuevo_tablero, nuevo_turno,\
+                              self.evaluacion(nuevo_tablero, nuevo_turno),\
+                              nuevo_tablero.jugadas_posibles(nuevo_turno))
+        return nuevo_estado
         
     def terminal_test(self, estado):
         fichas_en_tablero = estado.tablero.cantidad_fichas()
@@ -28,88 +43,69 @@ class Othello(Game):
         fichas_blancas = int(fichas_en_tablero.y)
         jugadas_posibles = estado.movimientos
         if fichas_negras + fichas_blancas == 64:
-            return true
+            return True
         elif len(jugadas_posibles) == 0:
-            jugadas_posibles_contricante = estado.tablero.jugadas_posibles(!estado.turno)
+            jugadas_posibles_contricante = estado.tablero.\
+                jugadas_posibles(not estado.turno)
             if len(jugadas_posibles_contricante) == 0:
-                return true
-        else return false
-
-    def evaluacion(self, estado):
+                return True
+        else: return False
         
     def cutoff_test(self, estado, profundidad, limite):
         if profundidad > limite or self.terminal_test(estado):
             return True
         
-    def coin_parity(self, estado):
-        jugador = estado.turno
+    def coin_parity(self, tablero, turno):
+        jugador = turno
         fichas_jugador = 0
         fichas_contrincante = 0
-        fichas_en_tablero = estado.tablero.cantidad_fichas()
+        fichas_en_tablero = tablero.cantidad_fichas()
         if jugador:
             fichas_jugador = int(fichas_en_tablero.x)
             fichas_contrincante = int(fichas_en_tablero.y)
         else:
             fichas_jugador = int(fichas_en_tablero.y)
             fichas_contrincante  = int(fichas_en_tablero.x)
-        return 100 * (fichas_jugador - fichas_contrincante) / (fichas_jugador - fichas_contrincante)
+        return 100 * \
+                (fichas_jugador - fichas_contrincante) \
+                / (fichas_jugador + fichas_contrincante)
     
-    def actual_mobility(self, estado):
-        max_player = estado.turno
-        min_player = !estado.turno
-        max = estado.tablero.numero_jugadas_posibles(max_player)
-        min = estado.tablero.numero_jugadas_posibles(min_player)
+    def actual_mobility(self, tablero, turno):
+        max_player = turno
+        min_player = not turno
+        max = tablero.numero_jugadas_posibles(max_player)
+        min = tablero.numero_jugadas_posibles(min_player)
         if max + min != 0:
             return 100 * (max - min) / (max + min)
         else:
             return 0
     
-    def corners_captured(self, estado):
-        jugador = estado.turno
-        contrincante = !jugador
-        max = estado.tablero.heuristica_esquinas(jugador)
-        min = estado.tablero.heuristica_esquinas(contrincante)
+    def corners_captured(self, tablero, turno):
+        jugador = turno
+        contrincante = not jugador
+        max = tablero.heuristica_esquinas(jugador)
+        min = tablero.heuristica_esquinas(contrincante)
         if max + min != 0:
             return 100 * (max - min) / (max + min)
         else:
             return 0       
         
-    def stability(self, estado):
-        
-        
-          
-def max_value(state, alpha, beta, profundidad):
-        if juego.cutoff_test(state, profundidad, d):
-            return juego.evaluacion(estado)
-        v = -inf
-        for a in juego.actions(estado):
-            v = max(v, min_value(juego.resultado(estado, a), alpha, beta, profundidad))
-            if v >= beta:
-                return v
-            alpha = max(alpha, v)
-        return v
-    
-    def min_value(state, alpha, beta, profundidad):
-        if juego.cutoff_test(estado, profundidad, d):
-            return juego.evaluacion(estado)
-        v = inf
-        for a in juego.actions(state):
-            v = min(v, max_value(juego.result(state, a), alpha, beta, profundidad + 1))
-            if v <= alpha:
-                return v
-            beta = min(beta, v)
-        return v 
-       
-def alphabeta_cuttoff_search(estado, juego, d=4):
-    best_score = -inf
-    beta = inf
-    best_action = None
-    for a in juego.actions(estado):
-        v = min_value(juego.resultado(estado, a), best_score, beta, 1)
-        if v > best_score:
-            best_score = v
-            best_action = a
-    return best_action
+    def stability(self, tablero, turno):
+        max_player = turno
+        min_player = not turno
+        max = tablero.heuristica_estabilidad(max_player)
+        min = tablero.heuristica_estabilidad(min_player)
+
+        if max + min != 0:
+            return 100 * (max - min) / (max + min)
+        else:
+            return 0
+
+    def evaluacion(self, tablero, turno):
+        return 30 * self.corners_captured(tablero, turno) + \
+                5 * self.actual_mobility(tablero, turno) + \
+                25 * self.stability(tablero, turno) + \
+                25 * self.coin_parity(tablero, turno)
         
     
         

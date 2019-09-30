@@ -1,6 +1,6 @@
 class Tablero:
     ''' Definicion de un tablero para el juego de Othello '''
-    def __init__(self, dimension=8, tamCasilla=60):
+    def __init__(self, dimension=8, tam_casilla=60):
         ''' Constructor base de un tablero
         :param dimension: Cantidad de casillas en horizontal y vertical del tablero
         :type dimension: int
@@ -8,13 +8,11 @@ class Tablero:
         :type tamCasilla: int
         '''
         self.dimension = dimension
-        self.tamCasilla = tamCasilla
+        self.tam_casilla = tam_casilla
         self.numeroDeTurno = 0 # Contador de la cantidad de turnos en el tablero
-        self.mundo = [[0 for i in range(self.dimension)] for j in range(self.dimension)] # Representacion logica del tablero. Cada numero representa: 0 = vacio, 1 = ficha jugador1, 2 = ficha jugador 2
-        # Configuracion inicial (colocar 4 fichas al centro del tablero):
-
-        print("Jugadas posibles: %s" % str(self.jugadasPosibles()))
-        
+        self.mundo = [[0 for i in range(self.dimension)] \
+            for j in range(self.dimension)] # Representacion logica del tablero. Cada numero representa: 0 = vacio, 1 = ficha jugador1, 2 = ficha jugador 2
+            
     def display(self):
         ''' Dibuja en pantalla el tablero, es decir, dibuja las casillas y las fichas de los jugadores '''
         fondo = color(63, 221, 24) # El color del fondo del tablero
@@ -30,14 +28,18 @@ class Tablero:
                 fill(fondo)
                 stroke(linea)
                 strokeWeight(grosor)
-                rect(i*self.tamCasilla, j*self.tamCasilla, self.tamCasilla, self.tamCasilla)
+                rect(i*self.tam_casilla, j*self.tam_casilla, \
+                    self.tam_casilla, self.tam_casilla)
                 # Dibujar las fichas de los jugadores:
-                if not self.mundo[i][j] == 0 and (self.mundo[i][j] == 1 or self.mundo[i][j] == 2): # en caso de que la casilla no este vacia
+                if not self.mundo[i][j] == 0 and \
+                    (self.mundo[i][j] == 1 or self.mundo[i][j] == 2): # en caso de que la casilla no este vacia
                     fill(jugador1 if self.mundo[i][j] == 1 else jugador2) # establecer el color de la ficha
                     noStroke() # quitar contorno de linea
-                    ellipse(i*self.tamCasilla+(self.tamCasilla/2), j*self.tamCasilla+(self.tamCasilla/2), self.tamCasilla*3/5, self.tamCasilla*3/5)
+                    ellipse(i*self.tam_casilla+(self.tam_casilla/2), \
+                        j*self.tam_casilla+(self.tam_casilla/2), \
+                        self.tam_casilla*3/5, self.tam_casilla*3/5)
     
-    def setFicha(self, pos_x, pos_y, color_ficha):
+    def set_ficha(self, pos_x, pos_y, turno):
         ''' Coloca o establece una ficha en una casilla especifica del tablero.
         Nota: El eje vertical esta invertido y el contador empieza en cero.
         :param posX: Coordenada horizontal de la casilla para establecer la ficha
@@ -47,17 +49,18 @@ class Tablero:
         :param turno: Representa el turno o color de ficha a establecer
         :type turno: bool
         '''
-        if color == 'blanco':
-            self.mundo[pos_x][pos_y] = 2
-        elif color == 'negro':
+        
+        if turno:
             self.mundo[pos_x][pos_y] = 1
+        else:
+            self.mundo[pos_x][pos_y] = 2
    
-    def cambiarTurno(self):
+    def cambiar_turno(self):
         ''' Representa el cambio de turno. Normalmente representa la ultima accion del turno '''
         self.turno = not self.turno
         self.numeroDeTurno += 1
         
-    def estaOcupado(self, posX, posY):
+    def esta_ocupado(self, posX, posY):
         ''' Verifica si en la posicion de una casilla dada existe una ficha (sin importar su color)
         :param posX: Coordenada horizontal de la casilla a verificar
         :type posX: int
@@ -82,7 +85,7 @@ class Tablero:
                     contador.y = contador.y + 1
         return contador
                 
-    def fichasRodeadasAux(self, x, y, sx, sy, turno):
+    def fichas_rodeadas_aux(self, x, y, sx, sy, turno):
         l = []
         i, j = x, y
         contrario = 2 if turno else 1
@@ -92,24 +95,24 @@ class Tablero:
             l.append((i,j))
             i += sx
             j += sy
-        if i >= 0 and j >= 0 and i < self.dimension and j < self.dimension and \
-            not (i == x and j == y) and self.mundo[i][j] == actual:
+        if i >= 0 and j >= 0 and i < self.dimension and j < self.dimension\
+            and not (i == x and j == y) and self.mundo[i][j] == actual:
             return l
         return []
         
     def fichas_rodeadas(self, x, y, turno):
         fichas = []
-        fichas += self.fichasRodeadasAux(x - 1, y - 1, -1, -1, turno)
-        fichas += self.fichasRodeadasAux(x - 1, y, -1, 0, turno)
-        fichas += self.fichasRodeadasAux(x - 1, y + 1, -1, 1, turno)
-        fichas += self.fichasRodeadasAux(x, y + 1, 0, 1, turno)
-        fichas += self.fichasRodeadasAux(x + 1, y + 1, 1, 1, turno)
-        fichas += self.fichasRodeadasAux(x + 1, y, 1, 0, turno)
-        fichas += self.fichasRodeadasAux(x + 1, y - 1, 1, -1, turno)
-        fichas += self.fichasRodeadasAux(x, y - 1, 0, -1, turno)
+        fichas += self.fichas_rodeadas_aux(x - 1, y - 1, -1, -1, turno)
+        fichas += self.fichas_rodeadas_aux(x - 1, y, -1, 0, turno)
+        fichas += self.fichas_rodeadas_aux(x - 1, y + 1, -1, 1, turno)
+        fichas += self.fichas_rodeadas_aux(x, y + 1, 0, 1, turno)
+        fichas += self.fichas_rodeadas_aux(x + 1, y + 1, 1, 1, turno)
+        fichas += self.fichas_rodeadas_aux(x + 1, y, 1, 0, turno)
+        fichas += self.fichas_rodeadas_aux(x + 1, y - 1, 1, -1, turno)
+        fichas += self.fichas_rodeadas_aux(x, y - 1, 0, -1, turno)
         return set(fichas)
     
-    def invertirFichas(self, fichas, turno):
+    def invertir_fichas(self, fichas, turno):
         actual = 1 if turno else 2
         for x in fichas:
             self.mundo[x[0]][x[1]] = actual
@@ -118,7 +121,8 @@ class Tablero:
         l = []
         for x in range(self.dimension):
             for y in range(self.dimension):
-                if not self.estaOcupado(x, y) and len(self.fichasRodeadas(x, y, turno)) > 0:
+                if not self.esta_ocupado(x, y) and \
+                    len(self.fichas_rodeadas(x, y, turno)) > 0:
                     l.append((x,y))
         return l
     
@@ -135,53 +139,58 @@ class Tablero:
         if self.mundo[0][0] == color:
             esquina1 = 1 #Esquina capturada
         else:
-            if self.mundo[2][0] == color or self.mundo[2][2] == color or self.mundo[0][2] == color:
-                esquina1 = 0
+            if self.mundo[2][0] == color or self.mundo[2][2] == color\
+                or self.mundo[0][2] == color:
+                esquina1 = 0 
         
-        if self.mundo[0, 7] == color:
+        if self.mundo[0][7] == color:
             esquina2 = 1
         else:
-            if self.mundo[5, 0] == color or self.mundo[2][5] == color or self.mundo[2][7] == color:
+            if self.mundo[0][5] == color or self.mundo[2][5] == color\
+                or self.mundo[2][7] == color:
                 esquina2 = 0
 
         if self.mundo[7][7] == color:
             esquina3 = 1
         else:
-            if self.mundo[7, 5] == color or self.mundo[5][5] == color or self.mundo[5][7] == color:
+            if self.mundo[7][5] == color or self.mundo[5][5] == color\
+                or self.mundo[5][7] == color:
                 esquina3 = 0
 
-        if self.mundo[7, 0] == color:
+        if self.mundo[7][0] == color:
             esquina4 = 1
         else:
-            if self.mundo[5][0] == color or self.mundo[5][2] == color or self.mundo[7][2] == color:
-                esquina4 = 0
-                
+            if self.mundo[5][0] == color or self.mundo[5][2] == color\
+                or self.mundo[7][2] == color:
+                esquina4 = 0     
         return esquina1 + esquina2 + esquina3 + esquina4
     
     def heuristica_estabilidad(self, turno):
-        stable = []
-        semistable = []
-        unstable = []
+        estable = []
+        semiestable = []
+        inestable = []
         color = 1 if turno else 2
         esquinas = [(0, 0), (0, 7), (7, 0), (7, 7)]
         
         for esquina in esquinas:
             if esquina == color:
-                stable.append(esquina)
-        lista_fichas_rodeable = []
+                estable.append(esquina)
+        lista_fichas_rodeables = []
         for x in range(self.dimension):
             for y in range(self.dimension):
-                if not self.estaOcupado(x, y):
-                    lista_fichas_rodeadas.append(self.fichas_rodeadas(x, y, !turno))
+                if not self.esta_ocupado(x, y):
+                    lista_fichas_rodeables.append(\
+                        self.fichas_rodeadas(x, y, not turno))
                     
         conjunto_fichas_rodeables = set().union(*lista_fichas_rodeables)
         for x in range(self.dimension):
             for  y in range(self.dimension):
-                if self.mundo[x][y] == color and (x, y) in conjunto_fichas_rodeables:
-                    unstable.append((x, y))
+                if self.mundo[x][y] == color and \
+                    (x, y) in conjunto_fichas_rodeables:
+                    inestable.append((x, y))
                 else:
-                    semistable.append((x, y))
+                    semiestable.append((x, y))
         
-        return 3 * len(stable) + 2 * len(semistable) + len(unstable) 
+        return 3 * len(estable) + 2 * len(semiestable) + len(inestable) 
         
                 
