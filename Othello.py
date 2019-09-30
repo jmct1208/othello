@@ -1,17 +1,17 @@
-from Tablero import Tablero
-from Estado import Estado
+import Tablero
+import Estado
 import copy
 
-class Othello():
+class Othello:
     def __init__(self):
-        tablero_inicial = Tablero()
+        tablero_inicial = Tablero.Tablero()
         tablero_inicial.set_ficha(3, 3, False)
         tablero_inicial.set_ficha(4, 4, False)
         tablero_inicial.set_ficha(3, 4, True)
         tablero_inicial.set_ficha(4, 3, True)
         turno_inicial = True
         mov_iniciales = tablero_inicial.jugadas_posibles(turno_inicial)
-        self.inicial = Estado(tablero_inicial, turno_inicial, \
+        self.inicial = Estado.Estado(tablero_inicial, turno_inicial, \
                               self.evaluacion(tablero_inicial, turno_inicial), mov_iniciales)
         
     def actions(self, estado):
@@ -21,7 +21,7 @@ class Othello():
         if movimiento is None:
             nuevo_turno = not estado.turno
             nuevo_tablero = estado.tablero.copy()
-            return Estado(nuevo_tablero, nuevo_turno,\
+            return Estado.Estado(nuevo_tablero, nuevo_turno,\
                             self.evaluacion(nuevo_tablero, nuevo_turno),\
                                 nuevo_tablero.jugadas_posibles(nuevo_turno))
         if movimiento not in estado.movimientos:
@@ -32,7 +32,7 @@ class Othello():
         fichas_a_rodear = estado.tablero.fichas_rodeadas(\
                             movimiento[0], movimiento[1], estado.turno)
         nuevo_tablero.invertir_fichas(fichas_a_rodear, estado.turno)
-        nuevo_estado = Estado(nuevo_tablero, nuevo_turno,\
+        nuevo_estado = Estado.Estado(nuevo_tablero, nuevo_turno,\
                               self.evaluacion(nuevo_tablero, nuevo_turno),\
                               nuevo_tablero.jugadas_posibles(nuevo_turno))
         return nuevo_estado

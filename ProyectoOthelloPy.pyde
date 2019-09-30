@@ -11,7 +11,7 @@ termino_dibujarse = False
 
 def settings():
     ''' Metodo para establecer tamano de ventana al incluir variables '''
-    size(estado_actual.tablero.dimension * estado_actual.tablero.tam_casilla,\
+    size(estado_actual.tablero.dimension * estado_actual.tablero.tam_casilla,
          estado_actual.tablero.dimension * estado_actual.tablero.tam_casilla)
 
 def setup():
@@ -19,7 +19,7 @@ def setup():
     println("Proyecto base para el juego de mesa Othello")
     print("------------------------------------------------")
     estado_actual.display()
-    
+
 def draw():
     global estado_actual
     global termino_dibujarse
@@ -35,19 +35,19 @@ def draw():
     if juego.terminal_test(estado_actual):
         fichas_en_tablero = estado_actual.tablero.cantidad_fichas()
         fichas_negras = int(fichas_en_tablero.x)
-        fichas_blancas = int(fichas_en_tablero.y)   
+        fichas_blancas = int(fichas_en_tablero.y)
         c_fichas_negras = len(fichas_negras)
         c_fichas_blancas = len(fichas_blancas)
-        
+
         if c_fichas_negras < fichas_blancas:
             print("Ganó la computadora")
         elif c_fichas_negras > fichas_blancas:
             print("Ganó el humano")
         else:
             print("Empate")
-    termino_dibujarse = True     
-    
-      
+    termino_dibujarse = True
+
+
 def mousePressed():
     global estado_actual
     global accion_humano
@@ -57,9 +57,9 @@ def mousePressed():
         print("El juego ha terminado.")
     else:
         if estado_actual.turno:
-            x = mouseX/estado_actual.tablero.tam_casilla
-            y = mouseY/estado_actual.tablero.tam_casilla
-            #print "Click en la casilla [%d, %d]" % (x,y)
+            x = mouseX / estado_actual.tablero.tam_casilla
+            y = mouseY / estado_actual.tablero.tam_casilla
+            print "Click en la casilla [%d, %d]" % (x, y)
             if len(estado_actual.movimientos) > 0:
                 if (x, y) in estado_actual.movimientos:
                     accion_humano = (x, y)
@@ -68,7 +68,8 @@ def mousePressed():
                     return
             elif len(estado_actual.movimientos) == 0:
                 accion_humano = None
-            else: return
+            else:
+                return
             print("------------------------------------------------")
             print("Accion humano: %s" % str(accion_humano))
             estado_actual = juego.resultado(estado_actual, accion_humano)
@@ -76,8 +77,3 @@ def mousePressed():
             estado_actual.display()
         else:
             print("No es tu turno")
-
-        
-        
-    
-    

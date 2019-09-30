@@ -49,7 +49,6 @@ class Tablero:
         :param turno: Representa el turno o color de ficha a establecer
         :type turno: bool
         '''
-        
         if turno:
             self.mundo[pos_x][pos_y] = 1
         else:
