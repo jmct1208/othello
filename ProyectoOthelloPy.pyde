@@ -26,25 +26,22 @@ def draw():
     ''' Ciclo de dibujado '''
     estado_actual.tablero.display()
     if not juego.terminal_test(estado_actual) and not estado_actual.turno and termino_dibujarse:
-        accion_computadora = b.alphabeta_cutoff_search(estado_actual, juego)
+        accion_computadora = b.alphabeta_cutoff_search(estado_actual, juego, 5)
         print("------------------------------------------------")
         print("Accion computadora: %s" % str(accion_computadora))
         estado_actual = juego.resultado(estado_actual, accion_computadora)
-        print("------------------------------------------------")
         estado_actual.display()
     if juego.terminal_test(estado_actual):
         fichas_en_tablero = estado_actual.tablero.cantidad_fichas()
         fichas_negras = int(fichas_en_tablero.x)
         fichas_blancas = int(fichas_en_tablero.y)
-        c_fichas_negras = len(fichas_negras)
-        c_fichas_blancas = len(fichas_blancas)
-
-        if c_fichas_negras < fichas_blancas:
-            print("Ganó la computadora")
-        elif c_fichas_negras > fichas_blancas:
-            print("Ganó el humano")
+        if fichas_negras < fichas_blancas:
+            print("Gano la computadora")
+        elif fichas_negras > fichas_blancas:
+            print("Gano el humano")
         else:
             print("Empate")
+        noLoop()
     termino_dibujarse = True
 
 

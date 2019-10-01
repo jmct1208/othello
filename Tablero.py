@@ -1,3 +1,11 @@
+matriz_pesos = [[4, -3, 2, 2, 2, 2, -3, 4],
+                [-3, -4, -1, -1, -1, -1, -4, -3],
+                [2, -1, 1, 0, 0, 1, -1, 2],
+                [2, -1, 0, 1, 1, 0, -1, 2],
+                [2, -1, 0, 1, 1, 0, -1, 2],
+                [2, -1, 1, 0, 0, 1, -1, 2],
+                [-3, -4, -1, -1, -1, -1, -4, -3],
+                [4, -3, 2, 2, 2, 2, -3, 4]]
 class Tablero:
     ''' Definicion de un tablero para el juego de Othello '''
     def __init__(self, dimension=8, tam_casilla=60):
@@ -177,19 +185,33 @@ class Tablero:
         lista_fichas_rodeables = []
         for x in range(self.dimension):
             for y in range(self.dimension):
-                if not self.esta_ocupado(x, y):
-                    lista_fichas_rodeables.append(\
-                        self.fichas_rodeadas(x, y, not turno))
+                s = self.fichas_rodeadas(x, y, not turno)
+                if not self.esta_ocupado(x, y) and len(s) > 0:
+                    lista_fichas_rodeables.append(s)
                     
         conjunto_fichas_rodeables = set().union(*lista_fichas_rodeables)
+        #print("Lista de conjuntos de fichas rodeables: %s" % str(lista_fichas_rodeables))
+        #print("Union de estos conjuntos: %s" % conjunto_fichas_rodeables)
         for x in range(self.dimension):
             for  y in range(self.dimension):
                 if self.mundo[x][y] == color and \
                     (x, y) in conjunto_fichas_rodeables:
                     inestable.append((x, y))
-                else:
+                elif self.mundo[x][y] == color:
                     semiestable.append((x, y))
-        
-        return 3 * len(estable) + 2 * len(semiestable) + len(inestable) 
+        #print("Estables: %s" % str(estable))
+        #print("Semiestables: %s" % str(semiestable))
+        #print("Inestables: %s" % str(inestable))
+        return 1 * len(estable) + 0 * len(semiestable) + - 1 * len(inestable)
+    
+    def heuristica_pesos(self, turno):
+        color = 1 if turno else 2
+        valor_heuristica = 0
+        for i in range(self.dimension):
+            for j in range(self.dimension):
+                if self.mundo[i][j] == color:
+                    valor_heuristica = valor_heuristica + matriz_pesos[i][j]
+        return valor_heuristica
+                
         
                 

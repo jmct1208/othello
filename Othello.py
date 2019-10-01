@@ -1,6 +1,7 @@
 import Tablero
-import Estado
+from Estado import Estado
 import copy
+from Heuristica import evaluacion
 
 class Othello:
     def __init__(self):
@@ -11,8 +12,8 @@ class Othello:
         tablero_inicial.set_ficha(4, 3, True)
         turno_inicial = True
         mov_iniciales = tablero_inicial.jugadas_posibles(turno_inicial)
-        self.inicial = Estado.Estado(tablero_inicial, turno_inicial, \
-                              self.evaluacion(tablero_inicial, turno_inicial), mov_iniciales)
+        self.inicial = Estado(tablero_inicial, turno_inicial, \
+                        evaluacion(tablero_inicial, turno_inicial), mov_iniciales)
         
     def actions(self, estado):
         return estado.tablero.jugadas_posibles(estado.turno)
@@ -20,9 +21,9 @@ class Othello:
     def resultado(self, estado, movimiento):
         if movimiento is None:
             nuevo_turno = not estado.turno
-            nuevo_tablero = estado.tablero.copy()
-            return Estado.Estado(nuevo_tablero, nuevo_turno,\
-                            self.evaluacion(nuevo_tablero, nuevo_turno),\
+            nuevo_tablero = copy.deepcopy(estado.tablero)
+            return Estado(nuevo_tablero, nuevo_turno,\
+                            evaluacion(nuevo_tablero, nuevo_turno),\
                                 nuevo_tablero.jugadas_posibles(nuevo_turno))
         if movimiento not in estado.movimientos:
             return estado 
@@ -32,8 +33,8 @@ class Othello:
         fichas_a_rodear = estado.tablero.fichas_rodeadas(\
                             movimiento[0], movimiento[1], estado.turno)
         nuevo_tablero.invertir_fichas(fichas_a_rodear, estado.turno)
-        nuevo_estado = Estado.Estado(nuevo_tablero, nuevo_turno,\
-                              self.evaluacion(nuevo_tablero, nuevo_turno),\
+        nuevo_estado = Estado(nuevo_tablero, nuevo_turno,\
+                              evaluacion(nuevo_tablero, nuevo_turno),\
                               nuevo_tablero.jugadas_posibles(nuevo_turno))
         return nuevo_estado
         
@@ -55,57 +56,7 @@ class Othello:
         if profundidad > limite or self.terminal_test(estado):
             return True
         
-    def coin_parity(self, tablero, turno):
-        jugador = turno
-        fichas_jugador = 0
-        fichas_contrincante = 0
-        fichas_en_tablero = tablero.cantidad_fichas()
-        if jugador:
-            fichas_jugador = int(fichas_en_tablero.x)
-            fichas_contrincante = int(fichas_en_tablero.y)
-        else:
-            fichas_jugador = int(fichas_en_tablero.y)
-            fichas_contrincante  = int(fichas_en_tablero.x)
-        return 100 * \
-                (fichas_jugador - fichas_contrincante) \
-                / (fichas_jugador + fichas_contrincante)
     
-    def actual_mobility(self, tablero, turno):
-        max_player = turno
-        min_player = not turno
-        max = tablero.numero_jugadas_posibles(max_player)
-        min = tablero.numero_jugadas_posibles(min_player)
-        if max + min != 0:
-            return 100 * (max - min) / (max + min)
-        else:
-            return 0
-    
-    def corners_captured(self, tablero, turno):
-        jugador = turno
-        contrincante = not jugador
-        max = tablero.heuristica_esquinas(jugador)
-        min = tablero.heuristica_esquinas(contrincante)
-        if max + min != 0:
-            return 100 * (max - min) / (max + min)
-        else:
-            return 0       
-        
-    def stability(self, tablero, turno):
-        max_player = turno
-        min_player = not turno
-        max = tablero.heuristica_estabilidad(max_player)
-        min = tablero.heuristica_estabilidad(min_player)
-
-        if max + min != 0:
-            return 100 * (max - min) / (max + min)
-        else:
-            return 0
-
-    def evaluacion(self, tablero, turno):
-        return 30 * self.corners_captured(tablero, turno) + \
-                5 * self.actual_mobility(tablero, turno) + \
-                25 * self.stability(tablero, turno) + \
-                25 * self.coin_parity(tablero, turno)
         
     
         
